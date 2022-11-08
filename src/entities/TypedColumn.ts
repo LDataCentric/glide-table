@@ -1,13 +1,25 @@
 import { AutoGridColumn } from "@glideapps/glide-data-grid";
 
 export interface TypedColumn extends AutoGridColumn{
-    type:string
+    isSort:boolean;
 }
 
-enum columnTypes{
+export interface atributeColumn extends TypedColumn{
+    type: dataType
+}
+
+export interface TaskColumn extends TypedColumn{
+    labels:any[]
+}
+export interface PredictionColumn extends TypedColumn{
+
+}
+
+export enum dataType{
     TEXT="TEXT",
-    LABEL="LABEL",
-    PREDICTION="PREDICTION",
-    INTEGER="INTEGER"
+    NUMBER="NUMBER",
+    TIME_SERIES="TIME_SERIES",
+    IMAGE="IMAGE",
+    AUDIO="AUDIO",
 }
 

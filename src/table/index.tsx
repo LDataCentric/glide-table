@@ -1,8 +1,9 @@
 import {DataEditor,Item,GridCell, TextCell, GridCellKind, GridColumn, isEditableGridCell, CustomCell, CompactSelection, GridSelection} from "@glideapps/glide-data-grid"
 import { useExtraCells, ButtonCell, ButtonCellType } from "@glideapps/glide-data-grid-cells"
 import "@glideapps/glide-data-grid/dist/index.css"
-import { useCallback, useState } from "react"
+import { useCallback, useState, useMemo } from "react"
 import { TypedColumn } from "../entities/TypedColumn"
+import generateColumns from "../fake/fakefunc"
 
 export default function GLideTable(){
 
@@ -16,7 +17,7 @@ export default function GLideTable(){
   }
 
 
-  const columns: TypedColumn[] = [{title:"column one",id:"type", type:"boca"},{title:"column two",id:"type", type:"olho"}]
+  const columns: TypedColumn[] = useMemo(()=>generateColumns(),[])
   const getData = useCallback(([col,row]: Item): GridCell => {
     return {
       data:sampleData.content,
@@ -35,7 +36,9 @@ export default function GLideTable(){
     
     setSelection(newSelection)
   }
-  return (<DataEditor gridSelection={selection} onGridSelectionChange={printSelection} getCellContent={getData} columns={columns} rows={40} rowMarkers="both" height={500} ></DataEditor>)
+  return (<DataEditor gridSelection={selection} onGridSelectionChange={printSelection} getCellContent={getData} columns={columns} rows={40} rowMarkers="both" height={500} isDraggable={false} 
+  onColumnMoved={(s, e) => {columns[s]=columns[e]}}
+  ></DataEditor>)
 
 
 }
