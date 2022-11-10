@@ -12,16 +12,18 @@ export default function GLideTable(){
     columns: CompactSelection.empty(),
   });
   
+  let [databaseInfo,setDatabaseInfo] = useState(generateFakeData(200))
   
   const columns: TypedColumn[] = useMemo(()=>generateColumns(),[])
   const getData = useCallback(([col,row]: Item): GridCell => {
+
     return {
-      data:generateFakeData(col+row).content,
-      displayData:generateFakeData(col+row).content,
+      data:databaseInfo[row].content,
+      displayData:databaseInfo[row].content,
       allowOverlay:true,
       kind:GridCellKind.Text
     }
-  },[])
+  },[databaseInfo])
 
   
   const [showSearch, setShowSearch] = useState(false);
@@ -65,14 +67,29 @@ export default function GLideTable(){
   function printSelection(newSelection:GridSelection){
     newSelection.rows.toArray().forEach(num=>{
       for(let i=0;i<columns.length;i++){
-        console.log((getData([i,num]) as TextCell).displayData)
+        // console.log((getData([i,num]) as TextCell).displayData)
       }
     })
     
     setSelection(newSelection)
   }
-  return (<DataEditor onColumnResize={onColumnResize} showSearch={showSearch} getCellsForSelection={true} onSearchClose={() => setShowSearch(false)} gridSelection={selection} onColumnMoved={onColMoved} freezeColumns={1} onGridSelectionChange={printSelection} getCellContent={getData} 
-  columns={sortableResizableCols} rows={40} rowMarkers="both" height={500} isDraggable={false}></DataEditor>)
+
+  function onDelete(selection:GridSelection):boolean| GridSelection{
+    console.log("triggered")
+    setDatabaseInfo(_=>{
+      const newData = [...databaseInfo]
+      selection.rows.toArray().reverse().forEach(rowIndex=>{
+        newData.splice(rowIndex,1)
+      })
+      return newData
+    })
+    setSelection({rows:CompactSelection.empty(),
+      columns: CompactSelection.empty()
+    })
+    return true
+  }
+  return (<DataEditor onDelete={onDelete} onColumnResize={onColumnResize} showSearch={showSearch} getCellsForSelection={true} onSearchClose={() => setShowSearch(false)} gridSelection={selection} onColumnMoved={onColMoved} freezeColumns={1} onGridSelectionChange={printSelection} getCellContent={getData} 
+  columns={sortableResizableCols} rows={databaseInfo.length} rowMarkers="both" height={500} isDraggable={false}></DataEditor>)
 
 
 }
