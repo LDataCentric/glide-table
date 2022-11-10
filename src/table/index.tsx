@@ -3,7 +3,7 @@ import { useExtraCells, ButtonCell, ButtonCellType } from "@glideapps/glide-data
 import "@glideapps/glide-data-grid/dist/index.css"
 import { useCallback, useState, useMemo } from "react"
 import { TypedColumn } from "../entities/TypedColumn"
-import generateColumns from "../fake/fakefunc"
+import {generateColumns, generateFakeData} from "../fake/fakefunc"
 import { useEventListener } from "../util/util"
 export default function GLideTable(){
 
@@ -21,8 +21,8 @@ export default function GLideTable(){
   const columns: TypedColumn[] = useMemo(()=>generateColumns(),[])
   const getData = useCallback(([col,row]: Item): GridCell => {
     return {
-      data:sampleData.content,
-      displayData:sampleData.content,
+      data:generateFakeData(col+row).content,
+      displayData:generateFakeData(col+row).content,
       allowOverlay:true,
       kind:GridCellKind.Text
     }
@@ -64,8 +64,8 @@ const [showSearch, setShowSearch] = useState(false);
     
     setSelection(newSelection)
   }
-  return (<DataEditor showSearch={showSearch} onSearchClose={() => setShowSearch(false)} gridSelection={selection} onColumnMoved={onColMoved} freezeColumns={1} onGridSelectionChange={printSelection} getCellContent={getData} columns={sortableCols} rows={40} rowMarkers="both" height={500} isDraggable={false}
-  ></DataEditor>)
+  return (<DataEditor showSearch={showSearch} onSearchClose={() => setShowSearch(false)} gridSelection={selection} onColumnMoved={onColMoved} freezeColumns={1} onGridSelectionChange={printSelection} getCellContent={getData} 
+  columns={sortableCols} rows={40} rowMarkers="both" height={500} isDraggable={false}></DataEditor>)
 
 
 }
