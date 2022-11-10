@@ -23,32 +23,44 @@ export default function GLideTable(){
     }
   },[])
 
-  const [sortableCols, setSortableCols] = useState(columns);
+  
+  const [showSearch, setShowSearch] = useState(false);
+  
+  useEventListener(
+    "keydown",
+    useCallback(event => {
+      if ((event.ctrlKey || event.metaKey) && event.code === "KeyF") {
+        setShowSearch(cv => !cv);
+        event.stopPropagation();
+        event.preventDefault();
+      }
+    }, []),
+    window,
+    false,
+    true
+    );
+    
+  const [sortableResizableCols, setSortableResizableCols] = useState(columns);
 
   const onColMoved = useCallback((startIndex: number, endIndex: number): void => {
-    setSortableCols(old => {
+    setSortableResizableCols(old => {
         const newCols = [...old];
         const [toMove] = newCols.splice(startIndex, 1);
         newCols.splice(endIndex, 0, toMove);
         return newCols;
     });
+  }, []);
+
+  const onColumnResize = useCallback((column: GridColumn, newSize: number, colIndex:number) => {
+    setSortableResizableCols(prevColsMap => {
+        const newArray = [...prevColsMap];
+        newArray.splice(colIndex, 1, {
+            ...prevColsMap[colIndex],
+            width: newSize,
+        });
+        return newArray;
+    });
 }, []);
-
-const [showSearch, setShowSearch] = useState(false);
-
-  useEventListener(
-    "keydown",
-    useCallback(event => {
-        if ((event.ctrlKey || event.metaKey) && event.code === "KeyF") {
-            setShowSearch(cv => !cv);
-            event.stopPropagation();
-            event.preventDefault();
-        }
-    }, []),
-    window,
-    false,
-    true
-  );
 
   function printSelection(newSelection:GridSelection){
     newSelection.rows.toArray().forEach(num=>{
@@ -59,8 +71,8 @@ const [showSearch, setShowSearch] = useState(false);
     
     setSelection(newSelection)
   }
-  return (<DataEditor showSearch={showSearch} getCellsForSelection={true} onSearchClose={() => setShowSearch(false)} gridSelection={selection} onColumnMoved={onColMoved} freezeColumns={1} onGridSelectionChange={printSelection} getCellContent={getData} 
-  columns={sortableCols} rows={40} rowMarkers="both" height={500} isDraggable={false}></DataEditor>)
+  return (<DataEditor onColumnResize={onColumnResize} showSearch={showSearch} getCellsForSelection={true} onSearchClose={() => setShowSearch(false)} gridSelection={selection} onColumnMoved={onColMoved} freezeColumns={1} onGridSelectionChange={printSelection} getCellContent={getData} 
+  columns={sortableResizableCols} rows={40} rowMarkers="both" height={500} isDraggable={false}></DataEditor>)
 
 
 }
