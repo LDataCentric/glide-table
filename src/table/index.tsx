@@ -88,7 +88,7 @@ export default function GLideTable(){
     })
     return true
   }
-  return (<DataEditor onDelete={onDelete} onColumnResize={onColumnResize} showSearch={showSearch} getCellsForSelection={true} onSearchClose={() => setShowSearch(false)} gridSelection={selection} onColumnMoved={onColMoved} freezeColumns={1} onGridSelectionChange={printSelection} getCellContent={getData} 
+  return (<DataEditor onDelete={onDelete} onColumnResize={onColumnResize} showSearch={showSearch} getCellsForSelection={true} onSearchClose={() => setShowSearch(false)} gridSelection={selection} onColumnMoved={onColMoved} onGridSelectionChange={printSelection} getCellContent={getData} 
   columns={sortableResizableCols} rows={databaseInfo.length} rowMarkers="both" height={500} isDraggable={false}></DataEditor>)
 
 
