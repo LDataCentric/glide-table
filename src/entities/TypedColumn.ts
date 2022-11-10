@@ -1,6 +1,6 @@
-import { AutoGridColumn } from "@glideapps/glide-data-grid";
+import { SizedGridColumn } from "@glideapps/glide-data-grid";
 
-export interface TypedColumn extends AutoGridColumn{
+export interface TypedColumn extends SizedGridColumn{
     isSort:boolean;
 }
 

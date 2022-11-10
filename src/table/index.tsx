@@ -11,11 +11,6 @@ export default function GLideTable(){
     rows: CompactSelection.empty(),
     columns: CompactSelection.empty(),
   });
-
-  
-  let sampleData = {
-    content:"fdfdfffd",id:12,label:"false",prediction:0.8,predictionText:"false",img:"https://ca.slack-edge.com/T01RA4X4X35-U047PNY4AT0-006f4fc77a8f-512"
-  }
   
   
   const columns: TypedColumn[] = useMemo(()=>generateColumns(),[])
@@ -64,7 +59,7 @@ const [showSearch, setShowSearch] = useState(false);
     
     setSelection(newSelection)
   }
-  return (<DataEditor showSearch={showSearch} onSearchClose={() => setShowSearch(false)} gridSelection={selection} onColumnMoved={onColMoved} freezeColumns={1} onGridSelectionChange={printSelection} getCellContent={getData} 
+  return (<DataEditor showSearch={showSearch} getCellsForSelection={true} onSearchClose={() => setShowSearch(false)} gridSelection={selection} onColumnMoved={onColMoved} freezeColumns={1} onGridSelectionChange={printSelection} getCellContent={getData} 
   columns={sortableCols} rows={40} rowMarkers="both" height={500} isDraggable={false}></DataEditor>)
 
 
