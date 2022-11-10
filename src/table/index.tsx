@@ -1,4 +1,4 @@
-import {DataEditor,Item,GridCell, TextCell, GridCellKind, GridColumn, isEditableGridCell, CustomCell, CompactSelection, GridSelection} from "@glideapps/glide-data-grid"
+import {DataEditor,Item,GridCell, TextCell, GridCellKind, GridColumn, isEditableGridCell, CustomCell, CompactSelection, GridSelection, EditableGridCell} from "@glideapps/glide-data-grid"
 import { useExtraCells, ButtonCell, ButtonCellType } from "@glideapps/glide-data-grid-cells"
 import "@glideapps/glide-data-grid/dist/index.css"
 import { useCallback, useState, useMemo } from "react"
@@ -21,6 +21,7 @@ export default function GLideTable(){
       data:databaseInfo[row].content,
       displayData:databaseInfo[row].content,
       allowOverlay:true,
+      readonly:false,
       kind:GridCellKind.Text
     }
   },[databaseInfo])
@@ -41,6 +42,15 @@ export default function GLideTable(){
     false,
     true
     );
+
+const onCellEdited = useCallback((cell: Item, newValue: EditableGridCell) => {
+  //editing only text cells by now
+    if (newValue.kind !== GridCellKind.Text) {
+        return;
+    }
+    const [col, row] = cell;
+    databaseInfo[row].content = newValue.data
+  }, []);
     
   const [sortableResizableCols, setSortableResizableCols] = useState(columns);
 
@@ -64,15 +74,6 @@ export default function GLideTable(){
     });
 }, []);
 
-  function printSelection(newSelection:GridSelection){
-    newSelection.rows.toArray().forEach(num=>{
-      for(let i=0;i<columns.length;i++){
-        // console.log((getData([i,num]) as TextCell).displayData)
-      }
-    })
-    
-    setSelection(newSelection)
-  }
 
   function onDelete(selection:GridSelection):boolean| GridSelection{
     console.log("triggered")
@@ -88,7 +89,7 @@ export default function GLideTable(){
     })
     return true
   }
-  return (<DataEditor onDelete={onDelete} onColumnResize={onColumnResize} showSearch={showSearch} getCellsForSelection={true} onSearchClose={() => setShowSearch(false)} gridSelection={selection} onColumnMoved={onColMoved} onGridSelectionChange={printSelection} getCellContent={getData} 
+  return (<DataEditor onCellEdited={onCellEdited} onDelete={onDelete} onColumnResize={onColumnResize} showSearch={showSearch} getCellsForSelection={true} onSearchClose={() => setShowSearch(false)} gridSelection={selection} onColumnMoved={onColMoved} onGridSelectionChange={setSelection} getCellContent={getData} 
   columns={sortableResizableCols} rows={databaseInfo.length} rowMarkers="both" height={500} isDraggable={false}></DataEditor>)
 
 

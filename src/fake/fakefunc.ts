@@ -16,9 +16,10 @@ export function generateColumns():Array<TypedColumn>{
 }
 
 export function generateFakeData(variations:number):Array<any>{
+    
     let dataArray = []
     for(let i=0;i<variations;i++){
-    dataArray.push({content:"content"+i,id:i,label:"false",prediction:Math.sin(i),predictionText:"false",img:"https://ca.slack-edge.com/T01RA4X4X35-U047PNY4AT0-006f4fc77a8f-512"})
+    dataArray.push({content:""+i,id:i,label:"false",prediction:Math.sin(i),predictionText:"false",img:"https://ca.slack-edge.com/T01RA4X4X35-U047PNY4AT0-006f4fc77a8f-512"})
     }
     return dataArray
 }
