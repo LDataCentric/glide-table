@@ -12,11 +12,12 @@ export default function GLideTable(){
     columns: CompactSelection.empty(),
   });
 
+  
   let sampleData = {
     content:"fdfdfffd",id:12,label:"false",prediction:0.8,predictionText:"false",img:"https://ca.slack-edge.com/T01RA4X4X35-U047PNY4AT0-006f4fc77a8f-512"
   }
-
-
+  
+  
   const columns: TypedColumn[] = useMemo(()=>generateColumns(),[])
   const getData = useCallback(([col,row]: Item): GridCell => {
     return {
@@ -27,6 +28,17 @@ export default function GLideTable(){
     }
   },[])
 
+  const [sortableCols, setSortableCols] = useState(columns);
+
+  const onColMoved = useCallback((startIndex: number, endIndex: number): void => {
+    setSortableCols(old => {
+        const newCols = [...old];
+        const [toMove] = newCols.splice(startIndex, 1);
+        newCols.splice(endIndex, 0, toMove);
+        return newCols;
+    });
+}, []);
+
   function printSelection(newSelection:GridSelection){
     newSelection.rows.toArray().forEach(num=>{
       for(let i=0;i<columns.length;i++){
@@ -36,8 +48,7 @@ export default function GLideTable(){
     
     setSelection(newSelection)
   }
-  return (<DataEditor gridSelection={selection} onGridSelectionChange={printSelection} getCellContent={getData} columns={columns} rows={40} rowMarkers="both" height={500} isDraggable={false} 
-  onColumnMoved={(s, e) => {columns[s]=columns[e]}}
+  return (<DataEditor showSearch={true} gridSelection={selection} onColumnMoved={onColMoved} freezeColumns={1} onGridSelectionChange={printSelection} getCellContent={getData} columns={sortableCols} rows={40} rowMarkers="both" height={500} isDraggable={false}
   ></DataEditor>)
 
 
