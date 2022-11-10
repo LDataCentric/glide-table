@@ -4,7 +4,7 @@ import "@glideapps/glide-data-grid/dist/index.css"
 import { useCallback, useState, useMemo } from "react"
 import { TypedColumn } from "../entities/TypedColumn"
 import generateColumns from "../fake/fakefunc"
-
+import { useEventListener } from "../util/util"
 export default function GLideTable(){
 
   const [selection, setSelection] = useState<GridSelection>({
@@ -39,6 +39,22 @@ export default function GLideTable(){
     });
 }, []);
 
+const [showSearch, setShowSearch] = useState(false);
+
+  useEventListener(
+    "keydown",
+    useCallback(event => {
+        if ((event.ctrlKey || event.metaKey) && event.code === "KeyF") {
+            setShowSearch(cv => !cv);
+            event.stopPropagation();
+            event.preventDefault();
+        }
+    }, []),
+    window,
+    false,
+    true
+  );
+
   function printSelection(newSelection:GridSelection){
     newSelection.rows.toArray().forEach(num=>{
       for(let i=0;i<columns.length;i++){
@@ -48,7 +64,7 @@ export default function GLideTable(){
     
     setSelection(newSelection)
   }
-  return (<DataEditor showSearch={true} gridSelection={selection} onColumnMoved={onColMoved} freezeColumns={1} onGridSelectionChange={printSelection} getCellContent={getData} columns={sortableCols} rows={40} rowMarkers="both" height={500} isDraggable={false}
+  return (<DataEditor showSearch={showSearch} onSearchClose={() => setShowSearch(false)} gridSelection={selection} onColumnMoved={onColMoved} freezeColumns={1} onGridSelectionChange={printSelection} getCellContent={getData} columns={sortableCols} rows={40} rowMarkers="both" height={500} isDraggable={false}
   ></DataEditor>)
 
 
