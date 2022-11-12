@@ -1,6 +1,7 @@
 import {DataEditor,Item,GridCell, TextCell, GridCellKind, GridColumn, isEditableGridCell, CustomCell, CompactSelection, GridSelection, EditableGridCell} from "@glideapps/glide-data-grid"
-import { useExtraCells, ButtonCell, ButtonCellType, } from "@glideapps/glide-data-grid-cells"
+import { useExtraCells, ButtonCellType, } from "@glideapps/glide-data-grid-cells"
 import type { SparklineCell } from "@glideapps/glide-data-grid-cells/dist/ts/cells/sparkline-cell"
+import type {ButtonCell} from "@glideapps/glide-data-grid-cells/dist/ts/cells/button-cell"
 import "@glideapps/glide-data-grid/dist/index.css"
 import { useCallback, useState, useMemo } from "react"
 import { TypedColumn } from "../entities/TypedColumn"
@@ -23,7 +24,7 @@ export default function GLideTable(){
   
   const columns: TypedColumn[] = useMemo(()=>generateColumns(),[])
   const getData = useCallback(([col,row]: Item): GridCell => {
-    if(col !=1){
+    if(col >1){
       return {
         data:databaseInfo[row].content,
         displayData:databaseInfo[row].content,
@@ -32,7 +33,7 @@ export default function GLideTable(){
         kind:GridCellKind.Text
       }
     }
-    else
+    else if(col ===1)
     {
       num = row + 1;
       const values = range(0, 15).map(() => rand() * 100 - 50);
@@ -49,6 +50,28 @@ export default function GLideTable(){
               yAxis: [-50, 50],
           },
       } as SparklineCell;
+    }
+    else{
+      const b:ButtonCell={
+        kind:GridCellKind.Custom,
+        cursor:"pointer",
+        allowOverlay:true,
+        copyData:"data",
+        readonly:true,
+        data:{
+          kind:"button-cell",
+          title:"options",
+          backgroundColor:["transparent","#6572ffee"],
+          color:["accentColor","accentFg"],
+          borderColor:"#6572ffa0",
+          borderRadius:9,
+          onClick:()=>window.alert("clicou")
+        },
+        themeOverride:{
+          baseFontStyle:"700 12px"
+        }
+      }
+      return b
     }
   },[databaseInfo])
 
@@ -117,7 +140,8 @@ const onCellEdited = useCallback((cell: Item, newValue: EditableGridCell) => {
   }
   return (<DataEditor {...useExtraCells()} onCellEdited={onCellEdited} onDelete={onDelete} onColumnResize={onColumnResize} showSearch={showSearch}
     getCellsForSelection={true} onSearchClose={() => setShowSearch(false)} gridSelection={selection} 
-    onColumnMoved={onColMoved} onGridSelectionChange={setSelection} getCellContent={getData} 
+    onColumnMoved={onColMoved} onGridSelectionChange={setSelection} getCellContent={getData}
+    smoothScrollY={true} smoothScrollX={true}
   columns={sortableResizableCols} rows={databaseInfo.length} rowMarkers="both" height={500} isDraggable={false}></DataEditor>)
 
 
