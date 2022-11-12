@@ -1,18 +1,9 @@
 import { SizedGridColumn } from "@glideapps/glide-data-grid";
 
 export interface TypedColumn extends SizedGridColumn{
-    isSort:boolean;
-}
-
-export interface atributeColumn extends TypedColumn{
-    type: dataType
-}
-
-export interface TaskColumn extends TypedColumn{
-    labels:any[]
-}
-export interface PredictionColumn extends TypedColumn{
-
+    isSort:boolean,
+    type: dataType,
+    labels?: any
 }
 
 export enum dataType{
@@ -21,5 +12,7 @@ export enum dataType{
     TIME_SERIES="TIME_SERIES",
     IMAGE="IMAGE",
     AUDIO="AUDIO",
+    BUTTON="BUTTON",
+    BUTTON_LIST="BUTTON_LIST"
 }
 
