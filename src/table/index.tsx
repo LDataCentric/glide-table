@@ -62,12 +62,12 @@ export default function GLideTable(){
         readonly:true,
         data:{
           kind:"button-list-cell",
-          title:"options",
+          title:["label1","label2","label3"],
           backgroundColor:["transparent","#6572ffee"],
           color:["accentColor","accentFg"],
           borderColor:"#6572ffa0",
           borderRadius:9,
-          onClick:(a)=>console.log(a)
+          onClick:(clicked)=>console.log(clicked)
         },
         themeOverride:{
           baseFontStyle:"700 12px"
