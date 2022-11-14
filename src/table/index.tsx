@@ -1,13 +1,15 @@
 import {DataEditor,Item,GridCell, TextCell, GridCellKind, GridColumn, isEditableGridCell, CustomCell, CompactSelection, GridSelection, EditableGridCell} from "@glideapps/glide-data-grid"
 import { useExtraCells, ButtonCellType, } from "@glideapps/glide-data-grid-cells"
 import type { SparklineCell } from "@glideapps/glide-data-grid-cells/dist/ts/cells/sparkline-cell"
-import type {ButtonCell} from "@glideapps/glide-data-grid-cells/dist/ts/cells/button-cell"
+import type { ButtonListCell } from "../entities/cells/ButtonList/button-list-cell"
 import "@glideapps/glide-data-grid/dist/index.css"
 import { useCallback, useState, useMemo } from "react"
 import { TypedColumn } from "../entities/TypedColumn"
 import {generateColumns, generateFakeData} from "../fake/fakefunc"
+import { render as ButtonListRender } from "../entities/cells/ButtonList/button-list-cell"
 import { useEventListener } from "../util/util"
 import range from "lodash/range.js";
+import { render } from "@testing-library/react"
 export default function GLideTable(){
 
   let num: number = 1;
@@ -27,7 +29,7 @@ export default function GLideTable(){
     if(col >1){
       return {
         data:databaseInfo[row].content,
-        displayData:databaseInfo[row].content,
+        displayData:databaseInfo[row].content+"     dsdsfffdsfhfdskjfdfkdshkfdkfdkhfkfdkfkhf",
         allowOverlay:true,
         readonly:false,
         kind:GridCellKind.Text
@@ -37,7 +39,7 @@ export default function GLideTable(){
     {
       num = row + 1;
       const values = range(0, 15).map(() => rand() * 100 - 50);
-      console.log(values)
+      // console.log(values)
       return {
           kind: GridCellKind.Custom,
           allowOverlay: false,
@@ -52,20 +54,20 @@ export default function GLideTable(){
       } as SparklineCell;
     }
     else{
-      const b:ButtonCell={
+      const b:ButtonListCell={
         kind:GridCellKind.Custom,
         cursor:"pointer",
         allowOverlay:true,
         copyData:"data",
         readonly:true,
         data:{
-          kind:"button-cell",
+          kind:"button-list-cell",
           title:"options",
           backgroundColor:["transparent","#6572ffee"],
           color:["accentColor","accentFg"],
           borderColor:"#6572ffa0",
           borderRadius:9,
-          onClick:()=>window.alert("clicou")
+          onClick:(a)=>console.log(a)
         },
         themeOverride:{
           baseFontStyle:"700 12px"
@@ -138,11 +140,11 @@ const onCellEdited = useCallback((cell: Item, newValue: EditableGridCell) => {
     })
     return true
   }
-  return (<DataEditor {...useExtraCells()} onCellEdited={onCellEdited} onDelete={onDelete} onColumnResize={onColumnResize} showSearch={showSearch}
+  return (<DataEditor customRenderers={[...(useExtraCells().customRenderers),ButtonListRender]} onCellEdited={onCellEdited} onDelete={onDelete} onColumnResize={onColumnResize} showSearch={showSearch}
     getCellsForSelection={true} onSearchClose={() => setShowSearch(false)} gridSelection={selection} 
     onColumnMoved={onColMoved} onGridSelectionChange={setSelection} getCellContent={getData}
     smoothScrollY={true} smoothScrollX={true}
-  columns={sortableResizableCols} rows={databaseInfo.length} rowMarkers="both" height={500} isDraggable={false}></DataEditor>)
+  columns={sortableResizableCols} rows={databaseInfo.length} rowMarkers="both" height={600} isDraggable={false}></DataEditor>)
 
 
 }
