@@ -1,5 +1,5 @@
 import {DataEditor,Item,GridCell, TextCell, GridCellKind, GridColumn, isEditableGridCell, CustomCell, CompactSelection, GridSelection, EditableGridCell} from "@glideapps/glide-data-grid"
-import { useExtraCells, ButtonCellType, } from "@glideapps/glide-data-grid-cells"
+import {TagsCell as TagRender, SparklineCell as SparkRender} from "@glideapps/glide-data-grid-cells"
 import type { SparklineCell } from "@glideapps/glide-data-grid-cells/dist/ts/cells/sparkline-cell"
 import type {ButtonCell} from "@glideapps/glide-data-grid-cells/dist/ts/cells/button-cell"
 import "@glideapps/glide-data-grid/dist/index.css"
@@ -8,6 +8,9 @@ import { TypedColumn } from "../entities/TypedColumn"
 import {generateColumns, generateFakeData} from "../fake/fakefunc"
 import { useEventListener } from "../util/util"
 import range from "lodash/range.js";
+import uniq from "lodash/uniq.js"
+import { TagsCell } from "@glideapps/glide-data-grid-cells/dist/ts/cells/tags-cell"
+import "@glideapps/glide-data-grid-cells/dist/index.css";
 export default function GLideTable(){
 
   let num: number = 1;
@@ -37,7 +40,6 @@ export default function GLideTable(){
     {
       num = row + 1;
       const values = range(0, 15).map(() => rand() * 100 - 50);
-      console.log(values)
       return {
           kind: GridCellKind.Custom,
           allowOverlay: false,
@@ -52,26 +54,20 @@ export default function GLideTable(){
       } as SparklineCell;
     }
     else{
-      const b:ButtonCell={
-        kind:GridCellKind.Custom,
-        cursor:"pointer",
-        allowOverlay:true,
-        copyData:"data",
-        readonly:true,
-        data:{
-          kind:"button-cell",
-          title:"options",
-          backgroundColor:["transparent","#6572ffee"],
-          color:["accentColor","accentFg"],
-          borderColor:"#6572ffa0",
-          borderRadius:9,
-          onClick:()=>window.alert("clicou")
-        },
-        themeOverride:{
-          baseFontStyle:"700 12px"
-        }
-      }
-      return b
+      let possibleTags= [{tag:"label a",color:"#ff4d4d35"},{tag:"label b",color:"#48ff5735"}]
+      num = row + 1;
+      rand();
+      return {
+          kind: GridCellKind.Custom,
+          allowOverlay: true,
+          copyData: "4",
+          data: {
+              kind: "tags-cell",
+              possibleTags: possibleTags,
+              readonly: false,
+              tags: [possibleTags[0].tag]
+          },
+      } as TagsCell;
     }
   },[databaseInfo])
 
@@ -138,7 +134,7 @@ const onCellEdited = useCallback((cell: Item, newValue: EditableGridCell) => {
     })
     return true
   }
-  return (<DataEditor {...useExtraCells()} onCellEdited={onCellEdited} onDelete={onDelete} onColumnResize={onColumnResize} showSearch={showSearch}
+  return (<DataEditor customRenderers={[TagRender,SparkRender]} onCellEdited={onCellEdited} onDelete={onDelete} onColumnResize={onColumnResize} showSearch={showSearch}
     getCellsForSelection={true} onSearchClose={() => setShowSearch(false)} gridSelection={selection} 
     onColumnMoved={onColMoved} onGridSelectionChange={setSelection} getCellContent={getData}
     smoothScrollY={true} smoothScrollX={true}
