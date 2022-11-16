@@ -1,16 +1,15 @@
 import {DataEditor,Item,GridCell, TextCell, GridCellKind, GridColumn, isEditableGridCell, CustomCell, CompactSelection, GridSelection, EditableGridCell} from "@glideapps/glide-data-grid"
 import {TagsCell as TagRender, SparklineCell as SparkRender} from "@glideapps/glide-data-grid-cells"
 import type { SparklineCell } from "@glideapps/glide-data-grid-cells/dist/ts/cells/sparkline-cell"
-import type {ButtonCell} from "@glideapps/glide-data-grid-cells/dist/ts/cells/button-cell"
 import "@glideapps/glide-data-grid/dist/index.css"
 import { useCallback, useState, useMemo } from "react"
 import { TypedColumn } from "../entities/TypedColumn"
 import {generateColumns, generateFakeData} from "../fake/fakefunc"
 import { useEventListener } from "../util/util"
 import range from "lodash/range.js";
-import uniq from "lodash/uniq.js"
 import { TagsCell } from "@glideapps/glide-data-grid-cells/dist/ts/cells/tags-cell"
 import "@glideapps/glide-data-grid-cells/dist/index.css";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 export default function GLideTable(){
 
   let num: number = 1;
@@ -27,13 +26,23 @@ export default function GLideTable(){
   
   const columns: TypedColumn[] = useMemo(()=>generateColumns(),[])
   const getData = useCallback(([col,row]: Item): GridCell => {
-    if(col >1){
+    if(col >2){
       return {
         data:databaseInfo[row].content,
         displayData:databaseInfo[row].content,
         allowOverlay:true,
         readonly:false,
         kind:GridCellKind.Text
+      }
+    }
+    else if (col===2){
+      return{
+        kind:GridCellKind.Image,
+        data:["https://ca.slack-edge.com/T01RA4X4X35-U047PNY4AT0-006f4fc77a8f-192","https://ca.slack-edge.com/T01RA4X4X35-U047PNY4AT0-006f4fc77a8f-192"],
+        allowAdd:false,
+        allowOverlay:true,
+        displayData: ["https://ca.slack-edge.com/T01RA4X4X35-U047PNY4AT0-006f4fc77a8f-192","https://ca.slack-edge.com/T01RA4X4X35-U047PNY4AT0-006f4fc77a8f-192"],
+         
       }
     }
     else if(col ===1)
@@ -65,7 +74,7 @@ export default function GLideTable(){
               kind: "tags-cell",
               possibleTags: possibleTags,
               readonly: false,
-              tags: databaseInfo[row].labels ?? []
+              tags: databaseInfo[row].labels ?? ["empty"]
           },
       } as TagsCell;
     }
@@ -96,8 +105,14 @@ const onCellEdited = useCallback((cell: Item, newValue: EditableGridCell) => {
       databaseInfo[row].content = newValue.data
     }
     if(newValue.kind === GridCellKind.Custom && (newValue.data as any).kind==="tags-cell"){
-      console.log(newValue.data)
-      databaseInfo[row].labels = (newValue.data as any).tags
+      console.log(newValue.data);
+      // let nTags = ((newValue.data as any).tags as Array<string>).shift();
+      let nTags =((newValue.data as any).tags as Array<string>).filter((element)=>element!=="empty")
+      if(nTags.length===0){
+        nTags=["empty"]
+      }
+      databaseInfo[row].labels = nTags
+
     }
   }, []);
     

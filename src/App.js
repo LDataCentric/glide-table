@@ -3,7 +3,9 @@ import GlideTable from "./table/index"
 function App() {
   return (
     <div className="App">
-      <GlideTable></GlideTable>
+      <GlideTable>
+        
+      </GlideTable>
     </div>
   );
 }
