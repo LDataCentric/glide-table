@@ -65,7 +65,7 @@ export default function GLideTable(){
               kind: "tags-cell",
               possibleTags: possibleTags,
               readonly: false,
-              tags: [possibleTags[0].tag]
+              tags: databaseInfo[row].labels ?? []
           },
       } as TagsCell;
     }
@@ -90,11 +90,15 @@ export default function GLideTable(){
 
 const onCellEdited = useCallback((cell: Item, newValue: EditableGridCell) => {
   //editing only text cells by now
-    if (newValue.kind !== GridCellKind.Text) {
-        return;
+  const [col, row] = cell;
+    if (newValue.kind === GridCellKind.Text) {
+      
+      databaseInfo[row].content = newValue.data
     }
-    const [col, row] = cell;
-    databaseInfo[row].content = newValue.data
+    if(newValue.kind === GridCellKind.Custom && (newValue.data as any).kind==="tags-cell"){
+      console.log(newValue.data)
+      databaseInfo[row].labels = (newValue.data as any).tags
+    }
   }, []);
     
   const [sortableResizableCols, setSortableResizableCols] = useState(columns);
