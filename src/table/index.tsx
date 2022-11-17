@@ -3,14 +3,14 @@ import {TagsCell as TagRender, SparklineCell as SparkRender} from "@glideapps/gl
 import type { SparklineCell } from "@glideapps/glide-data-grid-cells/dist/ts/cells/sparkline-cell"
 import "@glideapps/glide-data-grid/dist/index.css"
 import { useCallback, useState, useMemo } from "react"
-import { TypedColumn } from "../entities/TypedColumn"
-import {generateColumns, generateFakeData} from "../fake/fakefunc"
+import { dataType, TypedColumn } from "../entities/TypedColumn"
 import { useEventListener } from "../util/util"
 import range from "lodash/range.js";
 import { TagsCell } from "@glideapps/glide-data-grid-cells/dist/ts/cells/tags-cell"
 import "@glideapps/glide-data-grid-cells/dist/index.css";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-export default function GLideTable(){
+import { TableProps } from "./tableProp"
+export default function GLideTable({data, columns,emptyMessage,height}:TableProps){
 
   let num: number = 1;
   function rand(): number {
@@ -22,10 +22,78 @@ export default function GLideTable(){
     columns: CompactSelection.empty(),
   });
   
-  let [databaseInfo,setDatabaseInfo] = useState(generateFakeData(200))
+  let [databaseInfo,setDatabaseInfo] = useState(data)
   
-  const columns: TypedColumn[] = useMemo(()=>generateColumns(),[])
   const getData = useCallback(([col,row]: Item): GridCell => {
+    let actualColumn = columns[col]
+    let columnType = actualColumn.type
+
+    let cell:GridCell
+
+    switch(columnType){
+      case dataType.TEXT:{
+        cell={
+          data:databaseInfo[row][actualColumn.title],
+          kind:GridCellKind.Text,
+          allowOverlay:true,
+          readonly:false,
+          displayData:databaseInfo[row][actualColumn.title],
+        }
+        break
+      }
+      case dataType.NUMBER:{
+        cell={
+          data:databaseInfo[row][actualColumn.title],
+          kind:GridCellKind.Text,
+          allowOverlay:true,
+          readonly:false,
+          displayData:databaseInfo[row][actualColumn.title],
+        }
+        break
+      }
+      case dataType.IMAGE:{
+        cell = {
+          kind:GridCellKind.Image,
+          allowAdd:false,
+          allowOverlay:true,
+          data:databaseInfo[row][actualColumn.title],
+          displayData: databaseInfo[row][actualColumn.title],
+        }
+        break
+      }
+      case dataType.LABEL_LIST:{
+        cell={
+          kind:GridCellKind.Custom,
+          allowOverlay:true,
+          copyData:"",
+          data:{
+            kind:"tags-cell",
+            possibleTags: actualColumn.labels,
+            readonly: false,
+            tags: databaseInfo[row][actualColumn.title] ?? [emptyMessage]
+          }
+        } as TagsCell
+        break
+      }
+      case dataType.TIME_SERIES:{
+        // const values = databaseInfo[row][actualColumn.title]
+        const values = range(0, 15).map(() => rand() * 100 - 50);
+        cell={
+          kind: GridCellKind.Custom,
+          allowOverlay: false,
+          copyData: "4",
+          data: {
+              kind: "sparkline-cell",
+              values,
+              displayValues: values.map(x =>(Math.round(x * 100) / 100).toFixed(2).toString()),
+              color: row % 2 === 0 ? "#77c4c4" : "#D98466",
+              yAxis: [-50, 50],
+          },
+        } as SparklineCell;
+        break
+      }
+    }
+
     if(col >2){
       return {
         data:databaseInfo[row].content,
@@ -40,6 +108,7 @@ export default function GLideTable(){
         kind:GridCellKind.Image,
         data:["https://ca.slack-edge.com/T01RA4X4X35-U047PNY4AT0-006f4fc77a8f-192","https://ca.slack-edge.com/T01RA4X4X35-U047PNY4AT0-006f4fc77a8f-192"],
         allowAdd:false,
+        rounding:50,
         allowOverlay:true,
         displayData: ["https://ca.slack-edge.com/T01RA4X4X35-U047PNY4AT0-006f4fc77a8f-192","https://ca.slack-edge.com/T01RA4X4X35-U047PNY4AT0-006f4fc77a8f-192"],
          
@@ -56,7 +125,7 @@ export default function GLideTable(){
           data: {
               kind: "sparkline-cell",
               values,
-              displayValues: values.map(x => Math.round(x).toString()),
+              displayValues: values.map(x =>(Math.round(x * 100) / 100).toFixed(2).toString()),
               color: row % 2 === 0 ? "#77c4c4" : "#D98466",
               yAxis: [-50, 50],
           },
@@ -74,7 +143,7 @@ export default function GLideTable(){
               kind: "tags-cell",
               possibleTags: possibleTags,
               readonly: false,
-              tags: databaseInfo[row].labels ?? ["empty"]
+              tags: databaseInfo[row].labels ?? [emptyMessage]
           },
       } as TagsCell;
     }
@@ -107,9 +176,9 @@ const onCellEdited = useCallback((cell: Item, newValue: EditableGridCell) => {
     if(newValue.kind === GridCellKind.Custom && (newValue.data as any).kind==="tags-cell"){
       console.log(newValue.data);
       // let nTags = ((newValue.data as any).tags as Array<string>).shift();
-      let nTags =((newValue.data as any).tags as Array<string>).filter((element)=>element!=="empty")
+      let nTags =((newValue.data as any).tags as Array<string>).filter((element)=>element!==emptyMessage)
       if(nTags.length===0){
-        nTags=["empty"]
+        nTags=[emptyMessage]
       }
       databaseInfo[row].labels = nTags
 
@@ -157,7 +226,7 @@ const onCellEdited = useCallback((cell: Item, newValue: EditableGridCell) => {
     getCellsForSelection={true} onSearchClose={() => setShowSearch(false)} gridSelection={selection} 
     onColumnMoved={onColMoved} onGridSelectionChange={setSelection} getCellContent={getData}
     smoothScrollY={true} smoothScrollX={true}
-  columns={sortableResizableCols} rows={databaseInfo.length} rowMarkers="both" height={500} isDraggable={false}></DataEditor>)
+  columns={sortableResizableCols} rows={databaseInfo.length} rowMarkers="both" height={height} isDraggable={false}></DataEditor>)
 
 
 }

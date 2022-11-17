@@ -7,7 +7,7 @@ export function generateColumns():Array<TypedColumn>{
     let attributeNumber:TypedColumn={type:dataType.NUMBER,id:"3",isSort:true,width:300,title:"index"}
     let attributeTimeSeries:TypedColumn={type:dataType.TIME_SERIES,id:"4",isSort:true,width:300,title:"cotas"}
     
-    let task:TypedColumn={id:"5",width:300,isSort:false,labels:[{name:"yes",color:"red",id:"sla"}],title:"click-bait",type:dataType.BUTTON_LIST}
+    let task:TypedColumn={id:"5",width:300,isSort:false,labels:[{name:"yes",color:"red",id:"sla"}],title:"click-bait",type:dataType.LABEL_LIST}
     let prediction:TypedColumn={id:"6",width:300,isSort:false,title:"click-bait",type:dataType.TEXT}
     columns.push(attributeText,attributeImage,attributeNumber,attributeTimeSeries,task,prediction)
     
