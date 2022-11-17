@@ -107,57 +107,6 @@ export default function GLideTable({data, columns,emptyMessage,height, rounding}
       }
     }
     return cell
-    // if(col >2){
-    //   return {
-    //     data:[databaseInfo[row].content, databaseInfo[row+1].content],
-    //     allowOverlay:true,
-    //     kind:GridCellKind.Bubble
-    //   }
-    // }
-    // else if (col===2){
-    //   return{
-    //     kind:GridCellKind.Image,
-    //     data:["https://ca.slack-edge.com/T01RA4X4X35-U047PNY4AT0-006f4fc77a8f-192","https://ca.slack-edge.com/T01RA4X4X35-U047PNY4AT0-006f4fc77a8f-192"],
-    //     allowAdd:false,
-    //     rounding:rounding??0,
-    //     allowOverlay:true,
-    //     displayData: ["https://ca.slack-edge.com/T01RA4X4X35-U047PNY4AT0-006f4fc77a8f-192","https://ca.slack-edge.com/T01RA4X4X35-U047PNY4AT0-006f4fc77a8f-192"],
-         
-    //   }
-    // }
-    // else if(col ===1)
-    // {
-    //   num = row + 1;
-    //   const values = range(0, 15).map(() => rand() * 100 - 50);
-    //   return {
-    //       kind: GridCellKind.Custom,
-    //       allowOverlay: false,
-    //       copyData: "4",
-    //       data: {
-    //           kind: "sparkline-cell",
-    //           values,
-    //           displayValues: values.map(x =>(Math.round(x * 100) / 100).toFixed(2).toString()),
-    //           color: row % 2 === 0 ? "#77c4c4" : "#D98466",
-    //           yAxis: [-50, 50],
-    //       },
-    //   } as SparklineCell;
-    // }
-    // else{
-    //   let possibleTags= [{tag:"label a",color:"#ff4d4d35"},{tag:"label b",color:"#48ff5735"}]
-    //   num = row + 1;
-    //   rand();
-    //   return {
-    //       kind: GridCellKind.Custom,
-    //       allowOverlay: true,
-    //       copyData: "4",
-    //       data: {
-    //           kind: "tags-cell",
-    //           possibleTags: possibleTags,
-    //           readonly: false,
-    //           tags: databaseInfo[row].labels ?? [emptyMessage]
-    //       },
-    //   } as TagsCell;
-    // }
   },[databaseInfo,sortableResizableCols])
 
   
