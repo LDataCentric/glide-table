@@ -14,9 +14,13 @@ export function getTagsFromDataLabel(labels:label[], data:any):string[]|null{
 }
 
 export function getLabelIdFromTag(labels:label[],tag:string):string|null{
-    let i = labels.findIndex(label=>label.name=tag)
+    let i = labels.findIndex(label=>label.name===tag)
     if(i===-1){
         return null
     }
     return labels[i].id
+}
+
+export function setLabelFromTags(data:any){
+
 }

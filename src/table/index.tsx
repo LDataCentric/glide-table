@@ -11,12 +11,10 @@ import "@glideapps/glide-data-grid-cells/dist/index.css";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { TableProps } from "./tableProp"
 import { getTagsFromDataLabel,getLabelIdFromTag } from "../util/label-tag"
-export default function GLideTable({data, columns,emptyMessage,height, rounding}:TableProps){
+import { fakeAddRLA, fakeDeleteRLA } from "../fake/fakefunc"
 
-  let num: number = 1;
-  function rand(): number {
-      return (num = (num * 16807) % 2147483647) / 2147483647;
-  }
+
+export default function GLideTable({data, columns,emptyMessage,height, rounding, addRlas, deleteRlas}:TableProps){
 
   const [selection, setSelection] = useState<GridSelection>({
     rows: CompactSelection.empty(),
@@ -24,11 +22,11 @@ export default function GLideTable({data, columns,emptyMessage,height, rounding}
   });
   let [sortableResizableCols, setSortableResizableCols] = useState(columns);
   let [databaseInfo,setDatabaseInfo] = useState(data)
+  const [showSearch, setShowSearch] = useState(false);
   
   const getData = useCallback(([col,row]: Item): GridCell => {
     let actualColumn = sortableResizableCols[col]
     let columnType = actualColumn.type
-    console.log(actualColumn)
 
     let cell:GridCell
 
@@ -65,7 +63,7 @@ export default function GLideTable({data, columns,emptyMessage,height, rounding}
         }
         break
       }
-      case dataType.LABEL_LIST:{
+      case dataType.SINGLE_LABEL_TAG_LIST:{
         cell={
           kind:GridCellKind.Custom,
           allowOverlay:true,
@@ -74,14 +72,13 @@ export default function GLideTable({data, columns,emptyMessage,height, rounding}
             kind:"tags-cell",
             possibleTags: actualColumn.labels.map((label)=>{return {tag:label.name,color:label.color,id:label.id}}),
             readonly: false,
-            tags:getTagsFromDataLabel(actualColumn.labels,databaseInfo[row][actualColumn.title]) ?? [emptyMessage]
+            tags:getTagsFromDataLabel(actualColumn.labels,databaseInfo[row][actualColumn.id]) ?? [emptyMessage]
           }
         } as TagsCell
         break
       }
       case dataType.TIME_SERIES:{
-        // const values = databaseInfo[row][actualColumn.title]
-        const values = range(0, 15).map(() => rand() * 100 - 50);
+        const values = databaseInfo[row][actualColumn.title]
         cell={
           kind: GridCellKind.Custom,
           allowOverlay: false,
@@ -91,7 +88,7 @@ export default function GLideTable({data, columns,emptyMessage,height, rounding}
               values,
               displayValues: values.map(x =>(Math.round(x * 100) / 100).toFixed(2).toString()),
               color: row % 2 === 0 ? "#77c4c4" : "#D98466",
-              yAxis: [-50, 50],
+              yAxis: [110, 200],
           },
         } as SparklineCell;
         break
@@ -108,9 +105,6 @@ export default function GLideTable({data, columns,emptyMessage,height, rounding}
     }
     return cell
   },[databaseInfo,sortableResizableCols])
-
-  
-  const [showSearch, setShowSearch] = useState(false);
   
   useEventListener(
     "keydown",
@@ -126,31 +120,29 @@ export default function GLideTable({data, columns,emptyMessage,height, rounding}
     true
     );
 
-const onCellEdited = useCallback((cell: Item, newValue: EditableGridCell) => {
-  //editing only text cells by now
+const onCellEdited = useCallback(async (cell: Item, newValue: EditableGridCell) => {
+  
   const [col, row] = cell;
+  console.log(sortableResizableCols[col].labels)
     if (newValue.kind === GridCellKind.Text) {
       
       databaseInfo[row].content = newValue.data
     }
-    if(newValue.kind === GridCellKind.Custom && (newValue.data as any).kind==="tags-cell"){
-      // let nTags = ((newValue.data as any).tags as Array<string>).shift();
+    if(newValue.kind === GridCellKind.Custom && (newValue.data as any).kind==="tags-cell" && sortableResizableCols[col].type===dataType.SINGLE_LABEL_TAG_LIST){
       let nTags =((newValue.data as any).tags as Array<string>).filter((element)=>element!==emptyMessage)
       if(nTags.length===0){
-        //delete record function
-        //deleteRecordLabelAssociation(databaseInfo[row]._id, databaseInfo[row][columns[col].title].rlasId)
-        //delete from local data
-        //databaseInfo[row][columns[col].title] = undefined
+        await deleteRlas(databaseInfo[row]._id,databaseInfo[row][sortableResizableCols[col].id].rlasId)
+        databaseInfo[row][sortableResizableCols[col].id] = undefined
         nTags=[emptyMessage]
       }
-      nTags = [nTags[0]]
-      //add label in the backend
-      //addLabelToTask(databaseInfo[row], columns[col].id, getLabelIdFromTag(columns[col].labels,nTags[0]))
-      //update label id
-      databaseInfo[row].labels = nTags
-
+      else{
+        //limit one tag selection
+        nTags = [nTags[nTags.length-1]]
+        let rlsaId = await addRlas(databaseInfo[row],sortableResizableCols[col].id,getLabelIdFromTag(sortableResizableCols[col].labels,nTags[0]))
+        databaseInfo[row][sortableResizableCols[col].id] = {labelId:getLabelIdFromTag(sortableResizableCols[col].labels,nTags[0]),rlsaId:rlsaId}
+      }
     }
-  }, [databaseInfo]);
+  }, [databaseInfo,sortableResizableCols]);
     
 
   const onColMoved = useCallback((startIndex: number, endIndex: number): void => {
