@@ -1,9 +1,12 @@
 import { SizedGridColumn } from "@glideapps/glide-data-grid";
+import { label } from "./labelProps";
 
 export interface TypedColumn extends SizedGridColumn{
     isSort:boolean,
     type: dataType,
-    labels?: any
+    labels?: label[],
+    id:string,
+    readonly:boolean
 }
 
 export enum dataType{
@@ -13,6 +16,8 @@ export enum dataType{
     IMAGE="IMAGE",
     AUDIO="AUDIO",
     BUTTON="BUTTON",
-    BUTTON_LIST="BUTTON_LIST"
+    SINGLE_LABEL_TAG_LIST="SINGLE_LABEL_TAG_LIST",
+    MULT_LABEL_TAG_LIST="MULT_LABEL_TAG_LIST",
+    BUBBLE="BUBBLE"
 }
 
