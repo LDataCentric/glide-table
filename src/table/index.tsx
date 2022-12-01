@@ -123,11 +123,15 @@ export default function GLideTable({data, columns,emptyMessage,height, rounding,
 const onCellEdited = useCallback(async (cell: Item, newValue: EditableGridCell) => {
   
   const [col, row] = cell;
-  console.log(sortableResizableCols[col].labels)
-    if (newValue.kind === GridCellKind.Text) {
+  // console.log(sortableResizableCols[col].labels)
+  console.log(col)
+  console.log(databaseInfo[row][sortableResizableCols[col].title])
+    if (newValue.kind === GridCellKind.Text || newValue.kind === GridCellKind.Number) {
       
-      databaseInfo[row].content = newValue.data
+      databaseInfo[row][sortableResizableCols[col].title] = newValue.data.toString()
     }
+    console.log(databaseInfo[row][sortableResizableCols[col].title])
+
     if(newValue.kind === GridCellKind.Custom && (newValue.data as any).kind==="tags-cell" && sortableResizableCols[col].type===dataType.SINGLE_LABEL_TAG_LIST){
       let nTags =((newValue.data as any).tags as Array<string>).filter((element)=>element!==emptyMessage)
       if(nTags.length===0){
