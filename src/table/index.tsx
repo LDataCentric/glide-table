@@ -1,11 +1,12 @@
 import {DataEditor,Item,GridCell, TextCell, GridCellKind, GridColumn, isEditableGridCell, CustomCell, CompactSelection, GridSelection, EditableGridCell, BubbleCell} from "@glideapps/glide-data-grid"
-import {TagsCell as TagRender, SparklineCell as SparkRender} from "@glideapps/glide-data-grid-cells"
+import {TagsCell as TagRender, SparklineCell as SparkRender, LinksCell as LinkRender} from "@glideapps/glide-data-grid-cells"
 import type { SparklineCell } from "@glideapps/glide-data-grid-cells/dist/ts/cells/sparkline-cell"
 import "@glideapps/glide-data-grid/dist/index.css"
 import { useCallback, useState, useMemo } from "react"
 import { dataType, TypedColumn } from "../entities/TypedColumn"
 import { useEventListener } from "../util/util"
-import range from "lodash/range.js";
+import renderer from "../customCells/cells/MultButtonCell"
+import type { LinksCell } from "../customCells/cells/MultButtonCell"
 import { TagsCell } from "@glideapps/glide-data-grid-cells/dist/ts/cells/tags-cell"
 import "@glideapps/glide-data-grid-cells/dist/index.css";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
@@ -95,11 +96,14 @@ export default function GLideTable({data, columns,emptyMessage,height, rounding,
       }
       case dataType.BUBBLE:{
         cell={
-          data:[databaseInfo[row][actualColumn.id].label.name +" "+ databaseInfo[row][actualColumn.id].confidence],
-          allowOverlay:true,
-          kind:GridCellKind.Bubble,
-          themeOverride:{bgBubble:databaseInfo[row][actualColumn.id].label.color}
-        } as BubbleCell
+          data:{
+            kind:"links-cell",
+            links:[{title:"test"},{title:"test2"}]
+          },
+          kind: GridCellKind.Custom,
+          allowOverlay: true,
+          copyData: "",
+        } as LinksCell
         break
       }
     }
@@ -184,7 +188,7 @@ const onCellEdited = useCallback(async (cell: Item, newValue: EditableGridCell) 
     })
     return true
   }
-  return (<DataEditor customRenderers={[TagRender,SparkRender]} onCellEdited={onCellEdited} onDelete={onDelete} onColumnResize={onColumnResize} showSearch={showSearch}
+  return (<DataEditor customRenderers={[TagRender,SparkRender,renderer]} onCellEdited={onCellEdited} onDelete={onDelete} onColumnResize={onColumnResize} showSearch={showSearch}
     getCellsForSelection={true} onSearchClose={() => setShowSearch(false)} gridSelection={selection} 
     onColumnMoved={onColMoved} onGridSelectionChange={setSelection} getCellContent={getData}
     smoothScrollY={true} smoothScrollX={true}

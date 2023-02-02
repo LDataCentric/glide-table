@@ -2,6 +2,7 @@ import { SizedGridColumn } from "@glideapps/glide-data-grid";
 import { label } from "./labelProps";
 
 export interface TypedColumn extends SizedGridColumn{
+    title: any;
     isSort:boolean,
     type: dataType,
     labels?: label[],

@@ -10,7 +10,7 @@ export function generateColumns():Array<TypedColumn>{
     let attributeImage:TypedColumn={type:dataType.IMAGE,id:"2",isSort:false,width:300,title:"fotos",readonly:false}
     let attributeNumber:TypedColumn={type:dataType.NUMBER,id:"3",isSort:true,width:300,title:"index",readonly:false}
     let attributeTimeSeries:TypedColumn={type:dataType.TIME_SERIES,id:"4",isSort:true,width:300,title:"cotas",readonly:true}
-    let task:TypedColumn={id:"5",width:300,isSort:false,labels:[{name:"yes",color:"#FEE2E2",id:"15"},{name:"label",id:"14",color:"blue"},{name:"outro",id:"16",color:"green"}],title:"click-bait",type:dataType.SINGLE_LABEL_TAG_LIST,readonly:false}
+    let task:TypedColumn={id:"5",width:300,isSort:false,labels:[{name:"yes",color:"#FEE2E2",id:"15"},{name:"label",id:"14",color:"#FEE2E2"},{name:"outro",id:"16",color:"green"}],title:"click-bait",type:dataType.SINGLE_LABEL_TAG_LIST,readonly:false}
     let prediction:TypedColumn={id:"6",width:300,isSort:false,title:"prediction",type:dataType.BUBBLE,readonly:true}
     columns.push(attributeText,attributeImage,attributeNumber,attributeTimeSeries,task,prediction)
     
