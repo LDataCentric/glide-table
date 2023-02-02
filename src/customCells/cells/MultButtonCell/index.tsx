@@ -7,6 +7,7 @@ import {
     blend,
 } from "@glideapps/glide-data-grid";
 import * as React from "react";
+import { roundedRect } from "../../draw-fns";
 import LinksCellEditor from "./editor";
 
 interface LinksCellProps {
@@ -81,7 +82,7 @@ const renderer: CustomRenderer<LinksCell> = {
         return undefined;
     },
     draw: (args, cell) => {
-        const { ctx, rect, theme, hoverX = -100, highlighted } = args;
+        const { ctx, rect, theme, hoverX = -100, highlighted, hoverY=-100 } = args;
         const { links } = cell.data;
         const underlineOffset = 10
 
@@ -90,43 +91,58 @@ const renderer: CustomRenderer<LinksCell> = {
         let drawX = rect.x + xPad;
 
         const rectHoverX = rect.x + hoverX;
+        const rectHoverY = rect.y + hoverY
 
         const font = `${theme.baseFontStyle} ${theme.fontFamily}`;
 
         const middleCenterBias = getMiddleCenterBias(ctx, font);
         const drawY = rect.y + rect.height / 2 + middleCenterBias;
+        const boxY = Math.floor(rect.y+theme.cellHorizontalPadding/2)
+        const tempHeight=32
+        const height = tempHeight??Math.ceil(rect.height-theme.cellVerticalPadding*2-1)
+        const marginY = 8
+        const marginX = 10
+        const padinX = 10
 
         for (const [index, b] of Object.entries(links)) {
             let button_r = new Path2D();
             const metrics = measureTextCached("text"+index, ctx);
-            console.log(index,metrics)
-            const commaMetrics = metrics;
+            // console.log(index,metrics)
 
-            const isHovered = rectHoverX > drawX && rectHoverX < drawX + metrics.width;
-
-            if (isHovered) {
-                ctx.moveTo(drawX, Math.floor(drawY + underlineOffset) + 0.5);
-                ctx.lineTo(drawX + metrics.width, Math.floor(drawY + underlineOffset) + 0.5);
-
-                // ctx.lineWidth = 1;
-                ctx.strokeStyle = theme.textDark;
-                ctx.stroke();
-
-                ctx.fillStyle = highlighted ? blend(theme.accentLight, theme.bgCell) : theme.bgCell;
-                ctx.fillText("text"+index, drawX - 1, drawY);
-                ctx.fillText("text"+index, drawX + 1, drawY);
-
-                ctx.fillText("text"+index, drawX - 2, drawY);
-                ctx.fillText("text"+index, drawX + 2, drawY);
-            }
+            const isHovered = (rectHoverX > drawX && rectHoverX < drawX + metrics.width+padinX*2)
+             && (rectHoverY>drawY-height/2 && rectHoverY<drawY+height/2);
+            roundedRect(button_r,drawX,drawY-height/2,metrics.width+padinX*2,height,5)
+            ctx.strokeStyle = "black"
+            ctx.lineWidth = 2
+            ctx.fillStyle=isHovered?"#FFCBE7":"#F33B9E"
+            ctx.shadowColor = "black";
+            ctx.shadowBlur = isHovered?2:0;
+            ctx.fill(button_r)
+            ctx.stroke(button_r)
             ctx.fillStyle = theme.textDark;
-            ctx.fillText("text"+index, drawX, drawY);
+            ctx.shadowBlur=0
+            ctx.fillText("text"+index, drawX+padinX, drawY);
+            // if (isHovered) {
+            //     ctx.moveTo(drawX+padinX, Math.floor(drawY + underlineOffset) + 0.5);
+            //     ctx.lineTo(drawX + metrics.width+padinX, Math.floor(drawY + underlineOffset) + 0.5);
 
-            drawX += commaMetrics.width + 4;
+            //     // ctx.lineWidth = 1;
+            //     ctx.strokeStyle = theme.textDark;
+            //     ctx.stroke();
+
+            //     ctx.fillStyle = highlighted ? blend(theme.accentLight, theme.bgCell) : theme.bgCell;
+            //     // ctx.fillText("text"+index, drawX - 1, drawY);
+            //     // ctx.fillText("text"+index, drawX + 1, drawY);
+
+            //     // ctx.fillText("text"+index, drawX - 2, drawY);
+            //     // ctx.fillText("text"+index, drawX + 2, drawY);
+            // }
+
+            drawX += metrics.width+padinX*2 + marginX;
         }
 
         return true;
-    },
+    },  
     // eslint-disable-next-line react/display-name
     provideEditor: () => p => {
         const { value, onChange } = p;

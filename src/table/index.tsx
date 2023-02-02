@@ -98,7 +98,7 @@ export default function GLideTable({data, columns,emptyMessage,height, rounding,
         cell={
           data:{
             kind:"links-cell",
-            links:[{title:"test"},{title:"test2"}]
+            links:[{title:"test"},{title:"test2"},{title:"sdds"}]
           },
           kind: GridCellKind.Custom,
           allowOverlay: true,
@@ -192,6 +192,7 @@ const onCellEdited = useCallback(async (cell: Item, newValue: EditableGridCell) 
     getCellsForSelection={true} onSearchClose={() => setShowSearch(false)} gridSelection={selection} 
     onColumnMoved={onColMoved} onGridSelectionChange={setSelection} getCellContent={getData}
     smoothScrollY={true} smoothScrollX={true}
+    rowHeight={120}
   columns={sortableResizableCols} rows={databaseInfo.length} rowMarkers="both" height={height} isDraggable={false}></DataEditor>)
 
 
