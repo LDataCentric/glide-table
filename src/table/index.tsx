@@ -98,8 +98,17 @@ export default function GLideTable({data, columns,emptyMessage,height, rounding,
         cell={
           data:{
             kind:"links-cell",
-            links:[{title:"test", onClick:()=>console.log("hello1")},{title:"test2",onClick:()=>console.log("hello2")},{title:"sdds",onClick:()=>console.log("hello3")},
-            {title:"sdds",onClick:()=>console.log("hello")},{title:"sdds",onClick:()=>console.log("hello")},{title:"sdds",onClick:()=>console.log("hello")},]
+            buttons:[{hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"test",onClick:()=>console.log("clicked1")},
+            {hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"test",onClick:()=>console.log("clicked2")},
+            {hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"test",onClick:()=>console.log("clicked3")},
+            {hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"test",onClick:()=>console.log("clicked4")},
+            {hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"test",onClick:()=>console.log("clicked5")}
+          ],
+            butonHeight:32,
+            isMulti:false,
+            rounding:8,
+            hoverShadow:true,
+            disableBorder:true       
           },
           kind: GridCellKind.Custom,
           allowOverlay: true,
