@@ -28,38 +28,51 @@ interface LinksCellProps {
 export type LinksCell = CustomCell<LinksCellProps>;
 
 function onClickSelect(e: Parameters<NonNullable<CustomRenderer<LinksCell>["onSelect"]>>[0]) {
-    const useCtrl = e.cell.data.navigateOn !== "click";
-    if (useCtrl !== e.ctrlKey) return undefined;
+    // const useCtrl = e.cell.data.navigateOn !== "click";
+    // if (useCtrl !== e.ctrlKey) return undefined;
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d", { alpha: false });
     if (ctx === null) return;
-
-    const { posX: hoverX, bounds: rect, cell, theme } = e;
+    const { posX: hoverX, bounds: rect, cell, theme,posY:hoverY } = e;
     const font = `${theme.baseFontStyle} ${theme.fontFamily}`;
     ctx.font = font;
-
     const { links } = cell.data;
+    const moreButtonWidht=30
+    let haveMoreButton=false;
+    console.log(e)
 
     const xPad = theme.cellHorizontalPadding;
+    const middleCenterBias = getMiddleCenterBias(ctx, font);
 
     let drawX = rect.x + xPad;
-
+    const tempHeight=32
+    const height = tempHeight??Math.ceil(rect.height-theme.cellVerticalPadding*2-1)/2
+    const drawY = rect.y + rect.height / 2 + middleCenterBias;
+    const marginX = 10
+    const padinX = 10
+    const moreButtonPadding = 10
     const rectHoverX = rect.x + hoverX;
+    const rectHoverY = rect.y +hoverY
     
     for (const [index, l] of Object.entries(links)) {
-        const needsComma = +index < links.length - 1;
-        const metrics = measureTextCached(l.title, ctx);
-        const commaMetrics = needsComma ? measureTextCached(l.title + ",", ctx, font) : metrics;
-
-        const isHovered = rectHoverX > drawX && rectHoverX < drawX + metrics.width;
-
+        const metrics = measureTextCached("text"+index, ctx);
+        if(drawX-rect.x>rect.width-metrics.width-moreButtonWidht*1.5){
+            haveMoreButton = true
+            break
+        }
+         const isHovered = (rectHoverX > drawX && rectHoverX < drawX + metrics.width+padinX*2)
+         && (rectHoverY>drawY-height/2 && rectHoverY<drawY+height/2);
         if (isHovered) {
             return l;
         }
-
-        drawX += commaMetrics.width + 4;
+        drawX += metrics.width+padinX*2 + marginX;
     }
-
+    if(haveMoreButton){
+        const isHovered = (rectHoverX > drawX && rectHoverX < drawX + moreButtonWidht+moreButtonPadding*2) && (rectHoverY>drawY-height/2 && rectHoverY<drawY+height/2);
+        if(isHovered){
+            return {onClick:()=>console.log("extra")}
+        }
+    }
     return undefined;
 }
 
@@ -74,6 +87,7 @@ const renderer: CustomRenderer<LinksCell> = {
         }
     },
     onClick: e => {
+        e.preventDefault();
         const hovered = onClickSelect(e);
         if (hovered !== undefined) {
             hovered.onClick?.();
@@ -82,9 +96,9 @@ const renderer: CustomRenderer<LinksCell> = {
         return undefined;
     },
     draw: (args, cell) => {
+        let haveMoreButton=false;
         const { ctx, rect, theme, hoverX = -100, highlighted, hoverY=-100 } = args;
         const { links } = cell.data;
-        const underlineOffset = 10
 
         const xPad = theme.cellHorizontalPadding;
 
@@ -97,23 +111,27 @@ const renderer: CustomRenderer<LinksCell> = {
 
         const middleCenterBias = getMiddleCenterBias(ctx, font);
         const drawY = rect.y + rect.height / 2 + middleCenterBias;
-        const boxY = Math.floor(rect.y+theme.cellHorizontalPadding/2)
+        ctx.font = font
         const tempHeight=32
-        const height = tempHeight??Math.ceil(rect.height-theme.cellVerticalPadding*2-1)
-        const marginY = 8
+        const height = tempHeight??Math.ceil(rect.height-theme.cellVerticalPadding*2-1)/2
         const marginX = 10
         const padinX = 10
+        const moreButtonWidht=30
 
         for (const [index, b] of Object.entries(links)) {
             let button_r = new Path2D();
             const metrics = measureTextCached("text"+index, ctx);
+            if(drawX-rect.x>rect.width-metrics.width-moreButtonWidht*1.5){
+                haveMoreButton = true
+                break
+            }
             // console.log(index,metrics)
 
             const isHovered = (rectHoverX > drawX && rectHoverX < drawX + metrics.width+padinX*2)
              && (rectHoverY>drawY-height/2 && rectHoverY<drawY+height/2);
             roundedRect(button_r,drawX,drawY-height/2,metrics.width+padinX*2,height,5)
             ctx.strokeStyle = "black"
-            ctx.lineWidth = 2
+            ctx.lineWidth = 1
             ctx.fillStyle=isHovered?"#FFCBE7":"#F33B9E"
             ctx.shadowColor = "black";
             ctx.shadowBlur = isHovered?2:0;
@@ -139,6 +157,24 @@ const renderer: CustomRenderer<LinksCell> = {
             // }
 
             drawX += metrics.width+padinX*2 + marginX;
+        }
+        if(haveMoreButton){
+            let moreButtonPadding = 10
+            let dotRadio = 3
+            const isHovered = (rectHoverX > drawX && rectHoverX < drawX + moreButtonWidht+moreButtonPadding*2) && (rectHoverY>drawY-height/2 && rectHoverY<drawY+height/2);
+            const moreButton = new Path2D()
+            roundedRect(moreButton,drawX,drawY-height/2,(moreButtonWidht+moreButtonPadding*2)+dotRadio,height,5)
+            ctx.fillStyle=isHovered?"#989898":"#CACACA"
+            ctx.fill(moreButton)
+            const dotIcon = new Path2D()
+            drawX+=moreButtonPadding+dotRadio
+            for(let i=1;i<=3;i++){
+                dotIcon.arc(drawX,drawY,dotRadio,0,360)
+                ctx.fillStyle="#161616"
+                ctx.fill(dotIcon)
+                drawX+=moreButtonPadding+dotRadio
+            }
+            
         }
 
         return true;

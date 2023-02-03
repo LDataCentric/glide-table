@@ -98,7 +98,8 @@ export default function GLideTable({data, columns,emptyMessage,height, rounding,
         cell={
           data:{
             kind:"links-cell",
-            links:[{title:"test"},{title:"test2"},{title:"sdds"}]
+            links:[{title:"test", onClick:()=>console.log("hello1")},{title:"test2",onClick:()=>console.log("hello2")},{title:"sdds",onClick:()=>console.log("hello3")},
+            {title:"sdds",onClick:()=>console.log("hello")},{title:"sdds",onClick:()=>console.log("hello")},{title:"sdds",onClick:()=>console.log("hello")},]
           },
           kind: GridCellKind.Custom,
           allowOverlay: true,
