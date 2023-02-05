@@ -1,0 +1,44 @@
+.EditorWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: 6px;
+    color: var(--gdg-text-dark);
+    box-sizing: border-box;
+}
+.EditorWrap * {
+    box-sizing: border-box;
+}
+.EditorWrap label {
+    display: flex;
+    cursor: pointer;
+}
+.EditorWrap label input {
+    cursor: pointer;
+    width: auto;
+}
+.EditorWrap .pill {
+    margin-left: 8px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    border-radius: 20px;
+    min-height: 20px;
+    padding: 2px 6px;
+    display: flex;
+    align-items: center;
+    font: 12px var(--gdg-font-family);
+    background-color: var(--gdg-bg-bubble);
+    transition: box-shadow 150ms;
+}
+.EditorWrap .pill.unselected {
+    opacity: 0.8;
+}
+.EditorWrap label:hover .pill {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+.EditorWrap.readonly label {
+    cursor: default;
+}
+.EditorWrap.readonly .pill {
+    box-shadow: none !important;
+}

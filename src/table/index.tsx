@@ -13,6 +13,7 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { TableProps } from "./tableProp"
 import { getTagsFromDataLabel,getLabelIdFromTag } from "../util/label-tag"
 import { fakeAddRLA, fakeDeleteRLA } from "../fake/fakefunc"
+import "@glideapps/glide-data-grid-cells/dist/index.css";
 
 
 export default function GLideTable({data, columns,emptyMessage,height, rounding, addRlas, deleteRlas}:TableProps){
@@ -100,15 +101,21 @@ export default function GLideTable({data, columns,emptyMessage,height, rounding,
             kind:"links-cell",
             buttons:[{hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"test",onClick:()=>console.log("clicked1")},
             {hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"test",onClick:()=>console.log("clicked2")},
-            {hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"test",onClick:()=>console.log("clicked3")},
-            {hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"test",onClick:()=>console.log("clicked4")},
-            {hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"test",onClick:()=>console.log("clicked5")}
+            {hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"caderno",onClick:()=>console.log("clicked3")},
+            {hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"macaco",onClick:()=>console.log("clicked4")},
+            {hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"cabide",onClick:()=>console.log("clicked5")},
+            {hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"caveira",onClick:()=>console.log("clicked6")},
+            {hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"chinelo",onClick:()=>console.log("clicked7")},
+            {hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"cinto",onClick:()=>console.log("clicked8")},
+            {hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"trave",onClick:()=>console.log("clicked9")},
+            {hoverColor:"#FFCBE7",borderColor:"blue",fontColor:"blue",bgColor:"#F33B9E",text:"test",onClick:()=>console.log("clicked10")}
           ],
             butonHeight:32,
-            isMulti:false,
+            isMulti:true,
             rounding:8,
             hoverShadow:true,
-            disableBorder:true       
+            disableBorder:true ,
+            activated:["caveira"]      
           },
           kind: GridCellKind.Custom,
           allowOverlay: true,
@@ -135,16 +142,16 @@ export default function GLideTable({data, columns,emptyMessage,height, rounding,
     );
 
 const onCellEdited = useCallback(async (cell: Item, newValue: EditableGridCell) => {
-  
+  console.log("pow pow")
   const [col, row] = cell;
   // console.log(sortableResizableCols[col].labels)
-  console.log(col)
-  console.log(databaseInfo[row][sortableResizableCols[col].title])
+  // console.log(col)
+  // console.log(databaseInfo[row][sortableResizableCols[col].title])
     if (newValue.kind === GridCellKind.Text || newValue.kind === GridCellKind.Number) {
       
       databaseInfo[row][sortableResizableCols[col].title] = newValue.data.toString()
     }
-    console.log(databaseInfo[row][sortableResizableCols[col].title])
+    // console.log(databaseInfo[row][sortableResizableCols[col].title])
 
     if(newValue.kind === GridCellKind.Custom && (newValue.data as any).kind==="tags-cell" && sortableResizableCols[col].type===dataType.SINGLE_LABEL_TAG_LIST){
       let nTags =((newValue.data as any).tags as Array<string>).filter((element)=>element!==emptyMessage)

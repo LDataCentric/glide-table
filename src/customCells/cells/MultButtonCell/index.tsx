@@ -9,6 +9,7 @@ import {
 import * as React from "react";
 import { roundedRect } from "../../draw-fns";
 import ListButtonCellPortal from "./editor";
+import "./style.css"
 
 interface LinksCellProps {
     readonly kind: "links-cell";
@@ -16,7 +17,7 @@ interface LinksCellProps {
      * Used to hand tune the position of the underline as this is not a native canvas capability, it can need tweaking
      * for different fonts.
      */
-    readonly buttons: readonly{
+    readonly buttons: {
         onClick?:()=>void,
         enable?:boolean,
         borderColor:string,
@@ -29,7 +30,8 @@ interface LinksCellProps {
     butonHeight?:number,
     rounding:number,
     disableBorder?:boolean,
-    hoverShadow:boolean
+    hoverShadow:boolean,
+    activated:Array<string>
 }
 
 export type LinksCell = CustomCell<LinksCellProps>;
@@ -46,7 +48,6 @@ function onClickSelect(e: Parameters<NonNullable<CustomRenderer<LinksCell>["onSe
     const { buttons } = cell.data;
     const moreButtonWidht=30
     let haveMoreButton=false;
-    console.log(e)
 
     const xPad = theme.cellHorizontalPadding;
     const middleCenterBias = getMiddleCenterBias(ctx, font);
@@ -54,7 +55,7 @@ function onClickSelect(e: Parameters<NonNullable<CustomRenderer<LinksCell>["onSe
     let drawX = rect.x + xPad;
     const tempHeight=32
     const height = tempHeight??Math.ceil(rect.height-theme.cellVerticalPadding*2-1)/2
-    const drawY = rect.y + rect.height / 2 + middleCenterBias;
+    let drawY = rect.y + height/2 + middleCenterBias + theme.cellVerticalPadding
     const marginX = 10
     const padinX = 10
     const moreButtonPadding = 10
@@ -63,7 +64,11 @@ function onClickSelect(e: Parameters<NonNullable<CustomRenderer<LinksCell>["onSe
     
     for (const [index, button] of Object.entries(buttons)) {
         const metrics = measureTextCached(button.text, ctx);
-        if(drawX-rect.x>rect.width-metrics.width-moreButtonWidht*1.5){
+        if(drawX-rect.x>rect.width-metrics.width-padinX && drawY+ height+ 5 <rect.y+ rect.height){
+            drawY+= height+ 5
+            drawX = rect.x+xPad
+        }
+        if(drawX-rect.x>rect.width-metrics.width-moreButtonWidht*1.5 && drawY+ height+ 5>rect.y+ rect.height){
             haveMoreButton = true
             break
         }
@@ -77,7 +82,7 @@ function onClickSelect(e: Parameters<NonNullable<CustomRenderer<LinksCell>["onSe
     if(haveMoreButton){
         const isHovered = (rectHoverX > drawX && rectHoverX < drawX + moreButtonWidht+moreButtonPadding*2) && (rectHoverY>drawY-height/2 && rectHoverY<drawY+height/2);
         if(isHovered){
-            return {onClick:()=>console.log("extra")}
+            return undefined
         }
     }
     return undefined;
@@ -105,7 +110,7 @@ const renderer: CustomRenderer<LinksCell> = {
     draw: (args, cell) => {
         let haveMoreButton=false;
         const { ctx, rect, theme, hoverX = -100, highlighted, hoverY=-100 } = args;
-        const { buttons,butonHeight,rounding,hoverShadow, disableBorder } = cell.data;
+        const { buttons,butonHeight,rounding,hoverShadow, disableBorder, activated } = cell.data;
 
         const xPad = theme.cellHorizontalPadding;
 
@@ -117,9 +122,11 @@ const renderer: CustomRenderer<LinksCell> = {
         const font = `${theme.baseFontStyle} ${theme.fontFamily}`;
 
         const middleCenterBias = getMiddleCenterBias(ctx, font);
-        const drawY = rect.y + rect.height / 2 + middleCenterBias;
+        // const drawY = rect.y + rect.height / 2 + middleCenterBias;
         ctx.font = font
         const height = butonHeight??Math.ceil(rect.height-theme.cellVerticalPadding*2-1)/2
+        let drawY = rect.y + height/2 + middleCenterBias + theme.cellVerticalPadding
+
         const marginX = 10
         const padinX = 10
         const moreButtonWidht=30
@@ -127,7 +134,11 @@ const renderer: CustomRenderer<LinksCell> = {
         for (const [index, button] of Object.entries(buttons)) {
             let button_r = new Path2D();
             const metrics = measureTextCached(button.text, ctx);
-            if(drawX-rect.x>rect.width-metrics.width-moreButtonWidht*1.5){
+            if(drawX-rect.x>rect.width-metrics.width-padinX && drawY+ height+ 5 <rect.y+ rect.height){
+                drawY+= height+ 5
+                drawX = rect.x+xPad
+            }
+            if(drawX-rect.x>rect.width-metrics.width-moreButtonWidht*1.5 && drawY+ height+ 5>rect.y+ rect.height){
                 haveMoreButton = true
                 break
             }
@@ -149,6 +160,12 @@ const renderer: CustomRenderer<LinksCell> = {
             }
             ctx.fillStyle = button.fontColor
             ctx.fillText(button.text, drawX+padinX, drawY);
+            if(!activated.includes(button.text) && !isHovered){
+                const grayMask = new Path2D()
+                roundedRect(grayMask,drawX,drawY-height/2,metrics.width+padinX*2,height,rounding)
+                ctx.fillStyle = "rgba(120,120,120,0.7)"
+                ctx.fill(grayMask)
+            }
             // if (isHovered) {
             //     ctx.moveTo(drawX+padinX, Math.floor(drawY + underlineOffset) + 0.5);
             //     ctx.lineTo(drawX + metrics.width+padinX, Math.floor(drawY + underlineOffset) + 0.5);
@@ -168,13 +185,19 @@ const renderer: CustomRenderer<LinksCell> = {
             drawX += metrics.width+padinX*2 + marginX;
         }
         if(haveMoreButton){
+            
             let moreButtonPadding = 10
             let dotRadio = 3
             const isHovered = (rectHoverX > drawX && rectHoverX < drawX + moreButtonWidht+moreButtonPadding*2) && (rectHoverY>drawY-height/2 && rectHoverY<drawY+height/2);
             const moreButton = new Path2D()
+            if(hoverShadow){
+                ctx.shadowColor = "#737373";
+                ctx.shadowBlur = isHovered?4:0;
+            }
             roundedRect(moreButton,drawX,drawY-height/2,(moreButtonWidht+moreButtonPadding*2)+dotRadio,height,5)
             ctx.fillStyle=isHovered?"#989898":"#CACACA"
             ctx.fill(moreButton)
+            ctx.shadowBlur=0
             const dotIcon = new Path2D()
             drawX+=moreButtonPadding+dotRadio
             for(let i=1;i<=3;i++){
@@ -191,12 +214,83 @@ const renderer: CustomRenderer<LinksCell> = {
     // eslint-disable-next-line react/display-name
     provideEditor: () => p => {
         const { value, onChange } = p;
-        const { buttons} = value.data;
-        return (
-                <ListButtonCellPortal>
-                    
-            </ListButtonCellPortal>
+        const { buttons,isMulti} = value.data;
+        if(isMulti){
+            return (
+                <div className={"EditorWrap"}>
+                    {buttons.map((b,index) => {
+                        const selected =  b.enable ?? false
+                        return (
+                            <label key={b.text+index}>
+                                
+                                    <input
+                                        className="gdg-input"
+                                        type="checkbox" 
+                                        checked={selected}
+                                        name="tag-group"
+                                        //empty function to avoid console warning
+                                        onChange={()=>{
+                                            const Newbutton = selected ? [] : [b];
+                                            b.enable=!b.enable;
+                                            onChange({
+                                                ...p.value,
+                                                data: {
+                                                    ...value.data,
+                                                },
+                                            });
+                                        }}
+                                    />
+                                <div
+                                    className={"pill " + (selected ? "selected" : "unselected")}
+                                    style={{ backgroundColor: selected ? b.bgColor : undefined, color:selected? b.fontColor??"black":undefined}}>
+                                    {b.text}
+                                </div>
+                            </label>
+                        );
+                    })}
+                </div>
         );
+        }
+        else{
+            return( <div className={"EditorWrap"}>
+                    {buttons.map((b,index) => {
+                        const selected =  b.enable ??false
+                        return (
+                            <label key={b.text+index}>
+                                
+                                    <input
+                                        className="gdg-input"
+                                        type="radio" 
+                                        checked={selected}
+                                        name="tag-group"
+                                        //empty function to avoid console warning
+                                        onChange={()=>{
+                                            const Newbutton = selected ? [] : [b];
+                                            onChange({
+                                                ...p.value,
+                                                data: {
+                                                    ...value.data,
+                                                },
+                                            });
+                                        }}
+                                        
+                                        onClick={() => {
+                                            let clicked = b.enable
+                                            buttons.forEach(e=>e.enable=false)
+                                            b.enable=!clicked
+                                        }}
+                                    />
+                                <div
+                                    className={"pill " + (selected ? "selected" : "unselected")}
+                                    style={{ backgroundColor: selected ? b.bgColor : undefined, color:selected? b.fontColor??"black":undefined}}>
+                                    {b.text}
+                                </div>
+                            </label>
+                        );
+                    })}
+                </div>
+            )
+        }
     }
 };
 
